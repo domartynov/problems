@@ -1,7 +1,6 @@
 import unittest
 from hypothesis import given, example
 import hypothesis.strategies as st
-from more_itertools import first
 
 from heap import *
 
