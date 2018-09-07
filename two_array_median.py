@@ -29,47 +29,40 @@ def median_points(n):
 
 def median(l):
     a, b = median_points(len(l))
-    return (l[a] + l[b]) / 2.0 if a < b else l[a]
-
-
-def merge(i1, i2):
-    i1, i2 = iter(i1), iter(i2)
-    v1 = next(i1, None)
-    v2 = next(i2, None)
-    while v1 is not None or v2 is not None:
-        if v1 is None:
-            yield v2
-            v2 = next(i2, None)
-        elif v2 is None:
-            yield v1
-            v1 = next(i1, None)
-        elif v1 < v2:
-            yield v1
-            v1 = next(i1, None)
-        else:
-            yield v2
-            v2 = next(i2, None)
+    return (l[a] + l[b]) / 2 if a < b else l[a]
 
 
 def find_media_sorted_arrays(l1, l2):
     s1, s2 = (Span(l2), Span(l1)) if len(l2) < len(l1) else (Span(l1), Span(l2))
 
-    while len(s1) > 0 and len(s2) > 2:
-        h = len(s1) // 2
-        m1, m2 = median(s1), median(s2)
-        if m1 == m2:
-            return m1
-        elif m1 < m2:
-            s1.trim_left(h)
-            s2.trim_right(h)
-        else:
-            s1.trim_right(h)
-            s2.trim_left(h)
+    while len(s1) > 1:
+        a1, b1 = median_points(len(s1))
+        a2, b2 = median_points(len(s2))
 
-    return median(list(merge(iter(s1), iter(s2))))
+        if s1[a1] <= s2[a2] and s2[b2] <= s1[b1]:
+            return (s2[a2] + s2[b2]) / 2
+        if s2[a2] <= s1[a1] and s1[b1] <= s2[b2]:
+            return (s1[a1] + s1[b1]) / 2
+
+        if a1 == 0:
+            break
+
+        if s1[a1] <= s2[a2]:
+            s1.trim_left(a1)
+            s2.trim_right(a1)
+        elif s1[b1] >= s2[b2]:
+            s1.trim_right(a1)
+            s2.trim_left(a1)
+
+    tail = (len(s2) - 1) // 2 - len(s1)
+    if tail > 0:
+        s2.trim_left(tail)
+        s2.trim_right(tail)
+
+    return median(sorted(list(s1) + list(s2)))
 
 
 class Solution(object):
     # noinspection PyPep8Naming,PyMethodMayBeStatic
     def findMedianSortedArrays(self, nums1, nums2):
-        find_media_sorted_arrays(nums1, nums2)
+        return find_media_sorted_arrays(nums1, nums2)
